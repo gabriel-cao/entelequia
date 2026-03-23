@@ -1,0 +1,20 @@
+# Entornos virtuales
+venv/
+env/
+.env
+
+# Datos (demasiado grandes para GitHub)
+data/
+
+# Logs y cachés
+logs/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+
+# Reportes generados
+reports/
+
+# Jupyter
+.ipynb_checkpoints/
