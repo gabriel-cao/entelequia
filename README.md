@@ -147,11 +147,11 @@ print(signature.summary())
 If you use Entelequia in your research, please cite:
 
 ```bibtex
-@software{caoDiMarco2025entelequia,
+@software{caoDiMarco2026entelequia,
   author    = {Cao Di Marco, Gabriel},
   title     = {Entelequia AI Framework: longitudinal measurement of 
                functional identity consistency in large language models},
-  year      = {2025},
+  year      = {2026},
   url       = {https://github.com/gabriel-cao/entelequia},
   note      = {Open-source software}
 }
