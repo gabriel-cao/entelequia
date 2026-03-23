@@ -1,50 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 440" width="400" height="440">
   <defs>
     <style>
-      .ring { fill: none; stroke: #AFA9EC; stroke-dasharray: 4 6; }
-      .ring-mid { fill: none; stroke: #7F77DD; stroke-dasharray: 3 8; }
-      .spoke { stroke: #7F77DD; stroke-width: 0.8; }
-      .node-outer { fill: #534AB7; }
-      .node-mid { fill: #7F77DD; }
-      .core-bg-1 { fill: #534AB7; opacity: 0.15; }
-      .core-bg-2 { fill: #534AB7; opacity: 0.25; }
-      .core { fill: #534AB7; }
-      .label-main { font-family: Georgia, serif; font-size: 26px; font-weight: 700; fill: #EEEDFE; text-anchor: middle; dominant-baseline: central; }
-      .label-name { font-family: sans-serif; font-size: 18px; font-weight: 500; fill: #3C3489; text-anchor: middle; letter-spacing: 3; }
-      .label-sub { font-family: sans-serif; font-size: 10px; font-weight: 400; fill: #7F77DD; text-anchor: middle; letter-spacing: 2; }
+      .ring-outer { fill:none; stroke:#534AB7; stroke-width:0.8; stroke-dasharray:4 7; }
+      .ring-mid   { fill:none; stroke:#AFA9EC; stroke-width:0.5; stroke-dasharray:2 9; }
+      .spoke      { stroke:#7F77DD; stroke-width:0.7; }
     </style>
   </defs>
-  <!-- Fondo -->
-  <circle cx="200" cy="195" r="155" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="1"/>
-  <!-- Anillo exterior -->
-  <circle cx="200" cy="195" r="118" class="ring" stroke-width="0.8"/>
-  <!-- 6 nodos exteriores -->
-  <circle cx="200" cy="77"  r="6" class="node-outer" opacity="0.9"/>
-  <circle cx="302" cy="136" r="6" class="node-outer" opacity="0.7"/>
-  <circle cx="302" cy="254" r="6" class="node-outer" opacity="0.5"/>
-  <circle cx="200" cy="313" r="6" class="node-outer" opacity="0.7"/>
-  <circle cx="98"  cy="254" r="6" class="node-outer" opacity="0.5"/>
-  <circle cx="98"  cy="136" r="6" class="node-outer" opacity="0.9"/>
-  <!-- Anillo medio -->
-  <circle cx="200" cy="195" r="75" class="ring-mid" stroke-width="0.6"/>
-  <!-- 3 nodos medios -->
-  <circle cx="200" cy="120" r="4" class="node-mid" opacity="0.8"/>
-  <circle cx="265" cy="158" r="4" class="node-mid" opacity="0.8"/>
-  <circle cx="135" cy="158" r="4" class="node-mid" opacity="0.8"/>
-  <!-- Radios desde el centro -->
-  <line x1="200" y1="195" x2="200" y2="83"  class="spoke" opacity="0.35"/>
-  <line x1="200" y1="195" x2="296" y2="142" class="spoke" opacity="0.25"/>
-  <line x1="200" y1="195" x2="296" y2="248" class="spoke" opacity="0.2"/>
-  <line x1="200" y1="195" x2="200" y2="307" class="spoke" opacity="0.25"/>
-  <line x1="200" y1="195" x2="104" y2="248" class="spoke" opacity="0.2"/>
-  <line x1="200" y1="195" x2="104" y2="142" class="spoke" opacity="0.35"/>
+  <!-- Fondo negro redondeado -->
+  <rect x="10" y="10" width="380" height="420" rx="50" fill="#0D0B1A"/>
+  <!-- Halo exterior -->
+  <circle cx="200" cy="200" r="162" fill="none" stroke="#3C3489" stroke-width="1" opacity="0.5"/>
+  <!-- Anillo exterior con 6 nodos -->
+  <circle cx="200" cy="200" r="130" class="ring-outer"/>
+  <circle cx="200" cy="70"  r="6" fill="#7F77DD" opacity="0.9"/>
+  <circle cx="313" cy="135" r="6" fill="#7F77DD" opacity="0.7"/>
+  <circle cx="313" cy="265" r="6" fill="#7F77DD" opacity="0.5"/>
+  <circle cx="200" cy="330" r="6" fill="#7F77DD" opacity="0.7"/>
+  <circle cx="87"  cy="265" r="6" fill="#7F77DD" opacity="0.5"/>
+  <circle cx="87"  cy="135" r="6" fill="#7F77DD" opacity="0.9"/>
+  <!-- Anillo medio con 3 nodos -->
+  <circle cx="200" cy="200" r="82" class="ring-mid"/>
+  <circle cx="200" cy="118" r="4" fill="#AFA9EC" opacity="0.7"/>
+  <circle cx="271" cy="159" r="4" fill="#AFA9EC" opacity="0.7"/>
+  <circle cx="129" cy="159" r="4" fill="#AFA9EC" opacity="0.7"/>
+  <!-- Radios -->
+  <line x1="200" y1="200" x2="200" y2="76"  class="spoke" opacity="0.3"/>
+  <line x1="200" y1="200" x2="307" y2="141" class="spoke" opacity="0.2"/>
+  <line x1="200" y1="200" x2="307" y2="259" class="spoke" opacity="0.2"/>
+  <line x1="200" y1="200" x2="200" y2="324" class="spoke" opacity="0.3"/>
+  <line x1="200" y1="200" x2="93"  y2="259" class="spoke" opacity="0.2"/>
+  <line x1="200" y1="200" x2="93"  y2="141" class="spoke" opacity="0.2"/>
   <!-- Núcleo -->
-  <circle cx="200" cy="195" r="46" class="core-bg-1"/>
-  <circle cx="200" cy="195" r="32" class="core-bg-2"/>
-  <circle cx="200" cy="195" r="20" class="core"/>
+  <circle cx="200" cy="200" r="50" fill="#534AB7" opacity="0.12"/>
+  <circle cx="200" cy="200" r="35" fill="#3C3489" opacity="0.7"/>
+  <circle cx="200" cy="200" r="22" fill="#534AB7"/>
   <!-- E central -->
-  <text x="200" y="196" class="label-main">E</text>
-  <!-- Nombre y subtítulo -->
-  <text x="200" y="375" class="label-name">ENTELEQUIA</text>
-  <text x="200" y="392" class="label-sub">AI FRAMEWORK</text>
+  <text x="200" y="201" text-anchor="middle" dominant-baseline="central"
+        font-family="Georgia,serif" font-size="26" font-weight="700" fill="#EEEDFE">E</text>
+  <!-- Nombre -->
+  <text x="200" y="382" text-anchor="middle"
+        font-family="sans-serif" font-size="19" font-weight="500"
+        fill="#EEEDFE" letter-spacing="3">ENTELEQUIA</text>
+  <!-- Subtítulo -->
+  <text x="200" y="405" text-anchor="middle"
+        font-family="sans-serif" font-size="10" font-weight="400"
+        fill="#AFA9EC" letter-spacing="3">AI FRAMEWORK</text>
 </svg>
