@@ -11,6 +11,7 @@
     ]
   },
   "env": {
-    "ENTELEQUIA_VPS_KEY": "definir-en-el-shell-no-aca"
+    "ENTELEQUIA_VPS_KEY": "tu-api-key-aqui",
+    "ENDURANCE_IP": "192.168.1.16"
   }
 }
