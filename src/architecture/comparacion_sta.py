@@ -175,8 +175,8 @@ if __name__ == "__main__":
     try:
         import os
         if os.getenv("OPENAI_API_KEY"):
-            print("\nProbando OpenAI GPT-4...")
-            comparador.probar_modelo("gpt-4")
+            print("\nProbando OpenAI GPT-4o...")
+            comparador.probar_modelo("gpt-4o-2024-11-20")
         else:
             print("✗ OPENAI_API_KEY no configurada")
     except Exception as e:

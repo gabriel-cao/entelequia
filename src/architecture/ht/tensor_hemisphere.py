@@ -163,6 +163,16 @@ SOLO JSON puro."""
         except json.JSONDecodeError:
             pass
 
+        # Try extracting from markdown code block (```json ... ```)
+        try:
+            import re
+            match = re.search(r'```(?:json)?\s*\n(.*?)\n```', text, re.DOTALL)
+            if match:
+                json_str = match.group(1).strip()
+                return json.loads(json_str)
+        except (json.JSONDecodeError, AttributeError):
+            pass
+
         # Try extracting JSON block with nested braces
         try:
             start = text.find('{')
