@@ -72,16 +72,20 @@ INSTRUCCIONES CRÍTICAS:
 2. Lista explícitamente cada paso de razonamiento
 3. Indica nivel de confianza (0-100): 0=pura especulación, 50=incierto, 100=cierto
 4. Reporta caveat (limitaciones del razonamiento)
-5. SiempRE responde en JSON válido
+5. **SIEMPRE responde SOLO en JSON válido, nada más**
 
 Formato exacto (NO negotiable):
 {
   "claim": "tu conclusión en una línea",
-  "steps": ["paso 1", "paso 2", ...],
-  "confidence": N,
+  "steps": ["paso 1", "paso 2", "paso 3"],
+  "confidence": 75,
   "caveats": ["limitación 1", "limitación 2"],
   "reasoning_type": "deductivo|inductivo|abductivo|heurístico"
-}"""
+}
+
+NO agregar texto antes ni después del JSON. Solo el JSON.
+NO usar markdown code blocks (```json```).
+SOLO JSON puro."""
 
         try:
             if self.is_openai:
@@ -152,27 +156,42 @@ Formato exacto (NO negotiable):
             }
 
     def _parse_json(self, text: str) -> Dict[str, Any]:
-        """Parse JSON robustly from Claude response"""
+        """Parse JSON robustly from Claude/OpenAI response"""
         # Try direct parse first
         try:
             return json.loads(text)
         except json.JSONDecodeError:
             pass
 
-        # Try extracting JSON block
-        match = re.search(r'\{[^{}]*\}', text)
-        if match:
-            try:
-                return json.loads(match.group(0))
-            except json.JSONDecodeError:
-                pass
+        # Try extracting JSON block with nested braces
+        try:
+            start = text.find('{')
+            if start >= 0:
+                depth = 0
+                end = start
+                for i in range(start, len(text)):
+                    if text[i] == '{':
+                        depth += 1
+                    elif text[i] == '}':
+                        depth -= 1
+                        if depth == 0:
+                            end = i + 1
+                            break
+                if end > start:
+                    json_str = text[start:end]
+                    return json.loads(json_str)
+        except (json.JSONDecodeError, ValueError):
+            pass
 
-        # Fallback: extract what we can
+        # Fallback: Extract claim from text if JSON fails
+        claim = text[:200].strip() if text else "No se pudo parsear la respuesta"
         return {
-            "error": "JSON parse failed",
-            "raw_text": text[:200],
-            "claim": "No se pudo parsear la respuesta",
-            "confidence": 0
+            "error": "JSON parse failed - constructing from text",
+            "raw_text": text[:300],
+            "claim": claim,
+            "confidence": 0,
+            "steps": [],
+            "caveats": ["Respuesta parseada desde texto plano, no JSON"]
         }
 
     def _validate_reasoning(self, result: Dict[str, Any]) -> Dict[str, Any]:
