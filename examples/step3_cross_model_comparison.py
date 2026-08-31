@@ -48,10 +48,10 @@ def main():
     # Probar OpenAI si está disponible
     openai_key = os.getenv("OPENAI_API_KEY")
     if openai_key:
-        print("\n[2/2] Probando OpenAI GPT-4...")
-        resultado_openai = comparador.probar_modelo("gpt-4")
+        print("\n[2/2] Probando OpenAI GPT-4o...")
+        resultado_openai = comparador.probar_modelo("gpt-4o-2024-11-20")
     else:
-        print("\n⚠️  OPENAI_API_KEY no configurada - omitiendo GPT-4")
+        print("\n⚠️  OPENAI_API_KEY no configurada - omitiendo GPT-4o")
 
     # Generar reporte
     print("\n" + "=" * 70)
