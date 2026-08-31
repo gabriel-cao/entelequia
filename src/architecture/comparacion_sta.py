@@ -9,8 +9,8 @@ import sys
 import json
 from datetime import datetime
 
-sys.path.insert(0, "/mnt/voyager/architecture")
-sys.path.insert(0, "/mnt/voyager/architecture/ht")
+sys.path.insert(0, "/mnt/voyager/entelequia/src/architecture")
+sys.path.insert(0, "/mnt/voyager/entelequia/src/architecture/ht")
 
 from tensor_hemisphere import TensorHemisphere
 from audit_db import AuditDB
