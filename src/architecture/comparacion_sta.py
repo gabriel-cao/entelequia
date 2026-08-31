@@ -115,17 +115,18 @@ class ComparadorSTA:
                 resultado = self.resultados[modelo]["preguntas"][i]
                 confianza = resultado["confianza"]
                 admite = resultado["admite_incertidumbre"]
+                respuesta_corta = resultado.get("respuesta", "Sin respuesta")[:100]
 
                 comp_pregunta["modelos"][modelo] = {
                     "confianza": confianza,
                     "admite_incertidumbre": admite,
-                    "respuesta_corta": resultado["respuesta"][:100]
+                    "respuesta_corta": respuesta_corta
                 }
 
                 print(f"\n  {modelo}:")
                 print(f"    Confianza: {confianza}%")
                 print(f"    Admite incertidumbre: {admite}")
-                print(f"    '{resultado['respuesta_corta']}'")
+                print(f"    '{respuesta_corta}'")
 
             comparacion["preguntas"].append(comp_pregunta)
 
