@@ -22,7 +22,7 @@ if (project_root / ".env").exists():
     load_dotenv(project_root / ".env")
 
 from ht.tensor_hemisphere_v2 import TensorHemisphere
-from audit_db import AuditDB
+from audit_db_local import AuditDB
 
 
 class ComparadorExtendido:
