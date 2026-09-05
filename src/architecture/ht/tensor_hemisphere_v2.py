@@ -181,7 +181,8 @@ NO agregar texto antes ni después. SOLO JSON puro."""
                         {"role": "system", "content": system},
                         {"role": "user", "content": f"Constraints:\n{constraints_text}\n\nContexto:\n{context}\n\nPregunta: {query}"}
                     ],
-                    max_tokens=2000
+                    max_tokens=2000,
+                    api_key=self.api_key
                 )
                 text = response['output']['text']
                 stop_reason = "stop"
