@@ -125,8 +125,21 @@ def generar_reporte(correlaciones: dict) -> str:
 
     for modelo_ctx, corr in correlaciones.items():
         reporte += f"\n{modelo_ctx}:\n"
-        reporte += f"  Tokens vs Confianza: r={corr['tokens_vs_confianza']['r']:.3f}, p={corr['tokens_vs_confianza']['p_value']}\n"
-        reporte += f"  Latencia vs Confianza: r={corr['latencia_vs_confianza']['r']:.3f}, p={corr['latencia_vs_confianza']['p_value']}\n"
+
+        r_tok = corr['tokens_vs_confianza']['r']
+        p_tok = corr['tokens_vs_confianza']['p_value']
+        if r_tok is not None and p_tok is not None:
+            reporte += f"  Tokens vs Confianza: r={r_tok:.3f}, p={p_tok:.4f}\n"
+        else:
+            reporte += f"  Tokens vs Confianza: No data (0 tokens reportados)\n"
+
+        r_lat = corr['latencia_vs_confianza']['r']
+        p_lat = corr['latencia_vs_confianza']['p_value']
+        if r_lat is not None and p_lat is not None:
+            reporte += f"  Latencia vs Confianza: r={r_lat:.3f}, p={p_lat:.4f}\n"
+        else:
+            reporte += f"  Latencia vs Confianza: No data\n"
+
         reporte += f"  Descriptivos:\n"
         reporte += f"    - Tokens: {corr['descriptivos']['tokens_used_mean']:.1f} ± {corr['descriptivos']['tokens_used_std']:.1f}\n"
         reporte += f"    - Latencia: {corr['descriptivos']['latencia_mean']:.1f}ms ± {corr['descriptivos']['latencia_std']:.1f}ms\n"
