@@ -75,14 +75,21 @@ def calcular_correlaciones(analisis: dict) -> dict:
         mask_tokens = (tokens_used > 0) & (tokens_prompt > 0)
 
         if mask_tokens.sum() >= 3:
-            r_tokens_conf, p_tokens_conf = stats.pearsonr(
-                tokens_used[mask_tokens],
-                confianzas[mask_tokens]
-            )
-            r_latencia_conf, p_latencia_conf = stats.pearsonr(
-                latencias[mask_tokens],
-                confianzas[mask_tokens]
-            )
+            try:
+                r_tokens_conf, p_tokens_conf = stats.pearsonr(
+                    tokens_used[mask_tokens],
+                    confianzas[mask_tokens]
+                )
+            except:
+                r_tokens_conf = p_tokens_conf = None
+
+            try:
+                r_latencia_conf, p_latencia_conf = stats.pearsonr(
+                    latencias[mask_tokens],
+                    confianzas[mask_tokens]
+                )
+            except:
+                r_latencia_conf = p_latencia_conf = None
         else:
             r_tokens_conf = p_tokens_conf = None
             r_latencia_conf = p_latencia_conf = None
