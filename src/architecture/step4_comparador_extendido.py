@@ -63,7 +63,7 @@ class ComparadorExtendido:
         self.modelos = [
             "claude-haiku-4-5-20251001",  # Anthropic
             "gpt-4o-2024-11-20",           # OpenAI
-            "gemini-3.5-flash-lite",       # Google
+            "gemini-3.1-flash-lite",       # Google
             "grok-4.6",                    # xAI
             "qwen3.8-max",                 # Alibaba
         ]
