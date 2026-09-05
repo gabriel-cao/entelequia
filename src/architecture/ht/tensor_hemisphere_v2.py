@@ -156,8 +156,12 @@ NO agregar texto antes ni después. SOLO JSON puro."""
                 )
                 text = response.text
                 stop_reason = "stop"
-                tokens_used = 0
-                tokens_prompt = 0
+                if hasattr(response, 'usage_metadata') and response.usage_metadata:
+                    tokens_used = response.usage_metadata.candidates_token_count
+                    tokens_prompt = response.usage_metadata.prompt_token_count
+                else:
+                    tokens_used = 0
+                    tokens_prompt = 0
 
             elif self.provider == "xai":
                 response = self.client.chat.completions.create(
