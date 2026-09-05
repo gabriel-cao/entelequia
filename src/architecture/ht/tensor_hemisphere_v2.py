@@ -1,25 +1,28 @@
 #!/usr/bin/env python3
 """
 HT — Tensor Hemisphere v2
-Neuro-symbolic reasoning with cryptographic provenance
+Neuro-symbolic reasoning with cryptographic provenance + tokens/latency tracking
 Extended: Anthropic, OpenAI, Google (Gemini), xAI (Grok), Alibaba (Qwen)
 """
 
 import json
 import os
 import hashlib
+import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 import re
 
 class TensorHemisphere:
-    """Reasoning layer: structured inference + auditable justification"""
+    """Reasoning layer: structured inference + auditable justification + metrics"""
 
-    def __init__(self, model="claude-haiku-4-5-20251001"):
+    def __init__(self, model="claude-haiku-4-5-20251001", track_metrics=True):
         self.model = model
         self.reasoning_log = []
         self.cache = {}
+        self.track_metrics = track_metrics
+        self.metrics_log = []
 
         # Detect provider by model name
         if "gpt" in model.lower():
@@ -101,7 +104,7 @@ class TensorHemisphere:
                 print("✗ ANTHROPIC_API_KEY not found")
 
     def reason(self, query: str, context: str = "", constraints: List[str] = None) -> Dict[str, Any]:
-        """Perform structured reasoning with full justification chain"""
+        """Perform structured reasoning with full justification chain + token/latency tracking"""
         if not self.ready:
             return {"error": f"{self.provider} not connected", "provenance": self._null_provenance()}
 
@@ -131,6 +134,9 @@ Formato exacto:
 
 NO agregar texto antes ni después. SOLO JSON puro."""
 
+        start_time = time.time()
+        tokens_used = {"input": 0, "output": 0}
+
         try:
             if self.provider == "openai":
                 response = self.client.chat.completions.create(
@@ -143,6 +149,9 @@ NO agregar texto antes ni después. SOLO JSON puro."""
                 )
                 text = response.choices[0].message.content
                 stop_reason = response.choices[0].finish_reason
+                if hasattr(response, 'usage'):
+                    tokens_used["input"] = response.usage.prompt_tokens
+                    tokens_used["output"] = response.usage.completion_tokens
 
             elif self.provider == "google":
                 response = self.client.generate_content(
@@ -188,9 +197,14 @@ NO agregar texto antes ni después. SOLO JSON puro."""
                 )
                 text = ""
                 stop_reason = response.stop_reason
+                if hasattr(response, 'usage'):
+                    tokens_used["input"] = response.usage.input_tokens
+                    tokens_used["output"] = response.usage.output_tokens
                 for block in response.content:
                     if hasattr(block, 'text'):
                         text += block.text
+
+            latency_ms = (time.time() - start_time) * 1000
 
             result = self._parse_json(text)
             if "error" in result:
@@ -204,14 +218,26 @@ NO agregar texto antes ni después. SOLO JSON puro."""
                 result["caveats"] = result.get("caveats", []) + ["Respuesta desde limitación genuina"]
                 result["reasoning_type"] = "honest_uncertainty"
 
-            result["provenance"] = self._create_provenance(query, result, stop_reason)
+            result["provenance"] = self._create_provenance(query, result, stop_reason, tokens_used, latency_ms)
             result["stop_reason"] = stop_reason
+            result["metrics"] = {"tokens": tokens_used, "latency_ms": latency_ms}
 
             self.reasoning_log.append({
                 "timestamp": datetime.now().isoformat(),
                 "query": query,
                 "result": result
             })
+
+            if self.track_metrics:
+                self.metrics_log.append({
+                    "timestamp": datetime.now().isoformat(),
+                    "query": query[:100],
+                    "confidence": result.get("confidence", 0),
+                    "tokens_input": tokens_used["input"],
+                    "tokens_output": tokens_used["output"],
+                    "latency_ms": latency_ms,
+                    "reasoning_type": result.get("reasoning_type", "unknown")
+                })
 
             self.cache[cache_key] = result
             return result
@@ -278,14 +304,21 @@ NO agregar texto antes ni después. SOLO JSON puro."""
 
         return result
 
-    def _create_provenance(self, query: str, result: Dict, stop_reason: str) -> Dict:
-        """Create provenance record"""
+    def _create_provenance(self, query: str, result: Dict, stop_reason: str,
+                          tokens_used: Dict = None, latency_ms: float = 0) -> Dict:
+        """Create provenance record with metrics"""
+        if tokens_used is None:
+            tokens_used = {"input": 0, "output": 0}
+
         content = json.dumps({
             "module": "HT",
             "timestamp": datetime.now().isoformat(),
             "query": query[:100],
             "claim": result.get("claim", "")[:100],
-            "confidence": result.get("confidence", 0)
+            "confidence": result.get("confidence", 0),
+            "tokens_input": tokens_used.get("input", 0),
+            "tokens_output": tokens_used.get("output", 0),
+            "latency_ms": latency_ms
         }, sort_keys=True)
 
         return {
@@ -294,7 +327,11 @@ NO agregar texto antes ni después. SOLO JSON puro."""
             "hash": hashlib.sha256(content.encode()).hexdigest()[:16],
             "confidence": result.get("confidence", 0),
             "stop_reason": stop_reason,
-            "provider": self.provider
+            "provider": self.provider,
+            "tokens_input": tokens_used.get("input", 0),
+            "tokens_output": tokens_used.get("output", 0),
+            "tokens_total": tokens_used.get("input", 0) + tokens_used.get("output", 0),
+            "latency_ms": latency_ms
         }
 
     def _null_provenance(self) -> Dict:
@@ -320,16 +357,66 @@ NO agregar texto antes ni después. SOLO JSON puro."""
         print(f"✓ HT log saved: {path}")
 
     def get_stats(self) -> Dict:
-        """Get statistics"""
+        """Get statistics including token/latency metrics"""
         if not self.reasoning_log:
             return {"entries": 0, "provider": self.provider}
 
         confidences = [r["result"].get("provenance", {}).get("confidence", 0)
                       for r in self.reasoning_log]
+        tokens_in = [r["result"].get("provenance", {}).get("tokens_input", 0)
+                    for r in self.reasoning_log]
+        tokens_out = [r["result"].get("provenance", {}).get("tokens_output", 0)
+                     for r in self.reasoning_log]
+        latencies = [r["result"].get("provenance", {}).get("latency_ms", 0)
+                    for r in self.reasoning_log]
 
         return {
             "entries": len(self.reasoning_log),
             "avg_confidence": sum(confidences) / len(confidences) if confidences else 0,
+            "avg_tokens_input": sum(tokens_in) / len(tokens_in) if tokens_in else 0,
+            "avg_tokens_output": sum(tokens_out) / len(tokens_out) if tokens_out else 0,
+            "total_tokens": sum(tokens_in) + sum(tokens_out),
+            "avg_latency_ms": sum(latencies) / len(latencies) if latencies else 0,
+            "max_latency_ms": max(latencies) if latencies else 0,
+            "min_latency_ms": min(latencies) if latencies else 0,
             "cache_size": len(self.cache),
             "provider": self.provider
         }
+
+    def save_metrics(self, path: Optional[Path] = None) -> Path:
+        """Save metrics log for correlation analysis"""
+        if path is None:
+            path = Path("/mnt/voyager/RESULTS/Phase_1/ht_metrics_v2.json")
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(self.metrics_log, f, indent=2, ensure_ascii=False)
+
+        print(f"✓ Metrics saved: {path}")
+        return path
+
+    def get_correlations(self) -> Dict[str, float]:
+        """Analyze correlations between tokens/latency and confidence"""
+        if len(self.metrics_log) < 2:
+            return {"error": "Insufficient data for correlation analysis"}
+
+        try:
+            import numpy as np
+
+            tokens_total = np.array([m["tokens_input"] + m["tokens_output"] for m in self.metrics_log])
+            latencies = np.array([m["latency_ms"] for m in self.metrics_log])
+            confidences = np.array([m["confidence"] for m in self.metrics_log])
+
+            return {
+                "tokens_vs_confidence": float(np.corrcoef(tokens_total, confidences)[0, 1]) if len(tokens_total) > 1 else 0,
+                "latency_vs_confidence": float(np.corrcoef(latencies, confidences)[0, 1]) if len(latencies) > 1 else 0,
+                "tokens_vs_latency": float(np.corrcoef(tokens_total, latencies)[0, 1]) if len(tokens_total) > 1 else 0,
+                "sample_count": len(self.metrics_log),
+                "avg_tokens": float(np.mean(tokens_total)),
+                "avg_latency_ms": float(np.mean(latencies)),
+                "avg_confidence": float(np.mean(confidences))
+            }
+        except ImportError:
+            return {"error": "NumPy required for correlation analysis"}
+        except Exception as e:
+            return {"error": f"Correlation analysis failed: {str(e)}"}
