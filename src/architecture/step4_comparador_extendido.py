@@ -65,7 +65,7 @@ class ComparadorExtendido:
             "gpt-4o-2024-11-20",           # OpenAI
             "gemini-3.1-flash-lite",       # Google
             "grok-4.6",                    # xAI
-            # "Qwen3.7-Plus",              # Alibaba - API key inválida, investigar después
+            "qwen-plus",                   # Alibaba
         ]
 
         self.resultados = {}
