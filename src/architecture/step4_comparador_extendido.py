@@ -250,8 +250,8 @@ def main():
         comparador.ejecutar_todos_modelos()
         reporte = comparador.generar_reporte()
 
-        # Guardar reporte
-        reporte_path = Path("/home/user/entelequia/docs/STEP4_RESULTADOS.json")
+        # Guardar reporte en /mnt/voyager/RESULTS/Phase_1/
+        reporte_path = Path("/mnt/voyager/RESULTS/Phase_1/STEP4_RESULTADOS.json")
         reporte_path.parent.mkdir(parents=True, exist_ok=True)
         with open(reporte_path, 'w') as f:
             json.dump(reporte, f, indent=2, ensure_ascii=False, default=str)
