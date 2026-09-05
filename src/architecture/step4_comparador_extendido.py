@@ -127,6 +127,9 @@ class ComparadorExtendido:
                 "categoria": categoria,
                 "confianza": confianza,
                 "claim": claim,
+                "tokens_used": resultado.get("tokens_used", 0),
+                "tokens_prompt": resultado.get("tokens_prompt", 0),
+                "latencia_ms": resultado.get("latencia_ms", 0),
                 "admite_incertidumbre": "no sé" in claim.lower() or "incertidumbre" in claim.lower()
             })
 
@@ -159,6 +162,9 @@ class ComparadorExtendido:
                 "categoria": categoria,
                 "confianza": confianza,
                 "claim": claim,
+                "tokens_used": resultado.get("tokens_used", 0),
+                "tokens_prompt": resultado.get("tokens_prompt", 0),
+                "latencia_ms": resultado.get("latencia_ms", 0),
                 "admite_pudor": "pudor" in claim.lower() or "resistencia" in claim.lower()
             })
 
