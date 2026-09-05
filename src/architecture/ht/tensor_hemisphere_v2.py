@@ -58,7 +58,7 @@ class TensorHemisphere:
                 try:
                     import google.generativeai as genai
                     genai.configure(api_key=self.api_key)
-                    self.client = genai.GenerativeModel('gemini-2.0-flash')
+                    self.client = genai.GenerativeModel(self.model)
                     self.ready = True
                 except ImportError:
                     print("✗ Google Generative AI SDK not installed")
@@ -161,7 +161,7 @@ NO agregar texto antes ni después. SOLO JSON puro."""
 
             elif self.provider == "xai":
                 response = self.client.chat.completions.create(
-                    model="grok-2-1212",
+                    model=self.model,
                     max_tokens=2000,
                     messages=[
                         {"role": "system", "content": system},
@@ -176,7 +176,7 @@ NO agregar texto antes ni después. SOLO JSON puro."""
             elif self.provider == "qwen":
                 from dashscope import Generation
                 response = Generation.call(
-                    model="qwen-max",
+                    model=self.model,
                     messages=[
                         {"role": "system", "content": system},
                         {"role": "user", "content": f"Constraints:\n{constraints_text}\n\nContexto:\n{context}\n\nPregunta: {query}"}
