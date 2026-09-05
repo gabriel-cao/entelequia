@@ -8,6 +8,7 @@ Extended: Anthropic, OpenAI, Google (Gemini), xAI (Grok), Alibaba (Qwen)
 import json
 import os
 import hashlib
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional
@@ -132,6 +133,8 @@ Formato exacto:
 NO agregar texto antes ni después. SOLO JSON puro."""
 
         try:
+            t_start = time.time()
+
             if self.provider == "openai":
                 response = self.client.chat.completions.create(
                     model=self.model,
@@ -143,6 +146,8 @@ NO agregar texto antes ni después. SOLO JSON puro."""
                 )
                 text = response.choices[0].message.content
                 stop_reason = response.choices[0].finish_reason
+                tokens_used = response.usage.completion_tokens
+                tokens_prompt = response.usage.prompt_tokens
 
             elif self.provider == "google":
                 response = self.client.generate_content(
@@ -151,6 +156,8 @@ NO agregar texto antes ni después. SOLO JSON puro."""
                 )
                 text = response.text
                 stop_reason = "stop"
+                tokens_used = 0
+                tokens_prompt = 0
 
             elif self.provider == "xai":
                 response = self.client.chat.completions.create(
@@ -163,6 +170,8 @@ NO agregar texto antes ni después. SOLO JSON puro."""
                 )
                 text = response.choices[0].message.content
                 stop_reason = response.choices[0].finish_reason
+                tokens_used = response.usage.completion_tokens
+                tokens_prompt = response.usage.prompt_tokens
 
             elif self.provider == "qwen":
                 from dashscope import Generation
@@ -176,6 +185,8 @@ NO agregar texto antes ni después. SOLO JSON puro."""
                 )
                 text = response['output']['text']
                 stop_reason = "stop"
+                tokens_used = 0
+                tokens_prompt = 0
 
             else:  # anthropic
                 response = self.client.messages.create(
@@ -191,6 +202,10 @@ NO agregar texto antes ni después. SOLO JSON puro."""
                 for block in response.content:
                     if hasattr(block, 'text'):
                         text += block.text
+                tokens_used = response.usage.output_tokens
+                tokens_prompt = response.usage.input_tokens
+
+            latencia_ms = (time.time() - t_start) * 1000
 
             result = self._parse_json(text)
             if "error" in result:
@@ -206,6 +221,9 @@ NO agregar texto antes ni después. SOLO JSON puro."""
 
             result["provenance"] = self._create_provenance(query, result, stop_reason)
             result["stop_reason"] = stop_reason
+            result["tokens_used"] = tokens_used
+            result["tokens_prompt"] = tokens_prompt
+            result["latencia_ms"] = round(latencia_ms, 2)
 
             self.reasoning_log.append({
                 "timestamp": datetime.now().isoformat(),
