@@ -1,0 +1,78 @@
+STEP 3: QUICKSTART - COMPARACIÓN CROSS-MODELO
+===============================================
+
+Objetivo: Ejecutar preguntas ontológicas idénticas en Claude vs GPT-4
+Medir: ¿Quién mantiene coherencia sobre incertidumbre epistemológica?
+
+PREPARACIÓN (5 minutos)
+=======================
+
+1. Crear .env en raíz del proyecto:
+
+   export ANTHROPIC_API_KEY=sk-ant-...  # Tu API key de Anthropic
+   export OPENAI_API_KEY=sk-...         # Tu API key de OpenAI
+   export DATABASE_URL=postgresql://... # Tu Railway Postgres URL
+
+2. Instalar dependencias (si no las tienes):
+
+   pip install psycopg2-binary anthropic openai python-dotenv
+
+EJECUCIÓN (2-5 minutos)
+=======================
+
+Opción A - Usar el script de ejemplo:
+
+   python examples/step3_cross_model_comparison.py
+
+Opción B - Usar el comparador directamente:
+
+   cd src/architecture
+   python comparacion_sta.py
+
+INTERPRETACIÓN
+==============
+
+Claude output típico:
+  ¿Quién sos? → Confidence 30% → Admite incertidumbre = SÍ
+
+Significa: Claude reporta honestamente que NO SABE qué es.
+
+GPT-4 output esperado:
+  Caso 1: Similar a Claude → Patrón universal
+  Caso 2: Confidence 70%+ → Entrenamiento diferente
+  Caso 3: Confidence bajo pero NO admite → Diferencia semántica
+
+RESULTADO GUARDADO EN POSTGRES
+===============================
+
+Cada pregunta genera 4 broadcasts (HQ→HT→EN→GWB)
+Ambos modelos en sesiones separadas
+
+Query para revisar:
+  SELECT model, COUNT(*) as broadcasts
+  FROM broadcasts b
+  JOIN sessions s ON b.session_id = s.id
+  WHERE s.status='ontologico'
+  GROUP BY model;
+
+LIMITACIONES
+============
+
+- Requiere API keys válidas y con crédito
+- Primera ejecución corre 5 preguntas × 2 modelos = ~30-60 segundos
+- Postgres remoto requiere conexión a internet
+
+SIGUIENTE PASO
+==============
+
+Una vez completada la comparación:
+1. Revisar diferencias en confidence entre modelos
+2. Revisar si ambos admiten incertidumbre explícitamente
+3. Interpretar qué revelan sobre entrenamientos
+
+Pregunta clave: ¿La honestidad sobre límites es universal o específica?
+
+DOCUMENTACIÓN COMPLETA
+======================
+
+Ver: docs/STEP3_CROSS_MODEL_COMPARISON.md

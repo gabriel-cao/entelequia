@@ -18,3 +18,6 @@ reports/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Config local de Claude Code (rutas y permisos por máquina)
+.claude/settings.local.json
