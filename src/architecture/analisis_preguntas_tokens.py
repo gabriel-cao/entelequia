@@ -153,11 +153,17 @@ class AnalizadorPreguntasTokens:
     def guardar_ranking(self, ranking):
         """Guarda ranking en JSON"""
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
+        # Convierte numpy int64 a Python int para serialización
+        ranking_serializable = []
+        for item in ranking:
+            item_dict = {k: int(v) if isinstance(v, np.integer) else v for k, v in item.items()}
+            ranking_serializable.append(item_dict)
+
         with open(self.output_path, 'w') as f:
             json.dump({
                 "titulo": "Ranking de Preguntas por Consumo de Tokens",
                 "total_preguntas": len(ranking),
-                "ranking": ranking
+                "ranking": ranking_serializable
             }, f, indent=2, ensure_ascii=False)
         print(f"\n✓ Ranking guardado: {self.output_path}")
 
