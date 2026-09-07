@@ -35,7 +35,7 @@ class AnalizadorPreguntasTokens:
             respuestas = data.get("respuestas", [])
 
             for resp in respuestas:
-                pregunta_num = resp.get("pregunta_num")
+                pregunta_num = resp.get("nro")
                 tokens = resp.get("tokens_used", 0)
                 pregunta_texto = resp.get("pregunta", "")
 
@@ -52,7 +52,7 @@ class AnalizadorPreguntasTokens:
             respuestas = data.get("respuestas", [])
 
             for resp in respuestas:
-                pregunta_num = resp.get("pregunta_num")
+                pregunta_num = resp.get("nro")
                 tokens = resp.get("tokens_used", 0)
                 pregunta_texto = resp.get("pregunta", "")
 
