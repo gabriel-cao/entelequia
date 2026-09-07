@@ -1,0 +1,17 @@
+{
+  "_comentario": "Copiar a settings.local.json y completar. No se versiona.",
+  "permissions": {
+    "allow": [
+      "Bash(python3 scripts/*)",
+      "Bash(python3 -m pytest*)",
+      "Bash(git status)",
+      "Bash(git diff*)",
+      "Bash(ssh USUARIO@IP-LAN *)",
+      "Bash(scp USUARIO@IP-LAN:* *)"
+    ]
+  },
+  "env": {
+    "ENTELEQUIA_VPS_KEY": "tu-api-key-aqui",
+    "ENDURANCE_IP": "192.168.1.16"
+  }
+}
