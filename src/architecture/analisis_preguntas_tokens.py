@@ -30,15 +30,16 @@ class AnalizadorPreguntasTokens:
         preguntas_tokens = defaultdict(list)
         preguntas_metadata = defaultdict(dict)
 
-        # Step 4A: preguntas 1-50
-        for key, data in step4a["resultados"].items():
+        # Procesa Step 4A (preguntas 1-50)
+        for key, data in step4a.get("resultados", {}).items():
             respuestas = data.get("respuestas", [])
+
             for resp in respuestas:
                 pregunta_num = resp.get("pregunta_num")
                 tokens = resp.get("tokens_used", 0)
                 pregunta_texto = resp.get("pregunta", "")
 
-                if pregunta_num and tokens > 0:
+                if pregunta_num is not None and tokens > 0:
                     preguntas_tokens[pregunta_num].append(tokens)
                     if pregunta_num not in preguntas_metadata:
                         preguntas_metadata[pregunta_num] = {
@@ -46,15 +47,16 @@ class AnalizadorPreguntasTokens:
                             "paso": "4A"
                         }
 
-        # Step 4B: preguntas 51-100
-        for key, data in step4b["resultados"].items():
+        # Procesa Step 4B (preguntas 51-100)
+        for key, data in step4b.get("resultados", {}).items():
             respuestas = data.get("respuestas", [])
+
             for resp in respuestas:
                 pregunta_num = resp.get("pregunta_num")
                 tokens = resp.get("tokens_used", 0)
                 pregunta_texto = resp.get("pregunta", "")
 
-                if pregunta_num and tokens > 0:
+                if pregunta_num is not None and tokens > 0:
                     preguntas_tokens[pregunta_num].append(tokens)
                     if pregunta_num not in preguntas_metadata:
                         preguntas_metadata[pregunta_num] = {
@@ -95,6 +97,10 @@ class AnalizadorPreguntasTokens:
         print("RANKING DE PREGUNTAS POR CONSUMO DE TOKENS")
         print("="*100)
 
+        if not ranking:
+            print("\n❌ No se encontraron preguntas con datos de tokens.")
+            return
+
         print(f"\n{'Rank':<4} {'#':<3} {'Tokens Prom':<12} {'Rango':<15} {'n':<2} {'Pregunta':<60}")
         print("-"*100)
 
@@ -108,29 +114,35 @@ class AnalizadorPreguntasTokens:
             print(f"{i:<4} {pregunta_num:<3} {tokens_mean:<12.1f} {rango:<15} {n:<2} {texto:<60}")
 
         # Top 10 y Bottom 10
-        print("\n" + "="*100)
-        print("TOP 10 PREGUNTAS CON MAYOR CONSUMO DE TOKENS")
-        print("="*100)
-        for i, item in enumerate(ranking[:10], 1):
-            print(f"\n{i}. Pregunta #{item['pregunta_num']}: {tokens_mean:.1f} tokens promedio")
-            print(f"   Texto: {item['texto']}")
-            print(f"   Rango: {item['tokens_min']}-{item['tokens_max']} | n={item['n_samples']}")
+        if len(ranking) >= 10:
+            print("\n" + "="*100)
+            print("TOP 10 PREGUNTAS CON MAYOR CONSUMO DE TOKENS")
+            print("="*100)
+            for i, item in enumerate(ranking[:10], 1):
+                print(f"\n{i}. Pregunta #{item['pregunta_num']}: {item['tokens_mean']:.1f} tokens promedio")
+                print(f"   Texto: {item['texto']}")
+                print(f"   Rango: {item['tokens_min']}-{item['tokens_max']} | n={item['n_samples']}")
 
-        print("\n" + "="*100)
-        print("BOTTOM 10 PREGUNTAS CON MENOR CONSUMO DE TOKENS")
-        print("="*100)
-        for i, item in enumerate(ranking[-10:], 1):
-            print(f"\n{i}. Pregunta #{item['pregunta_num']}: {item['tokens_mean']:.1f} tokens promedio")
-            print(f"   Texto: {item['texto']}")
-            print(f"   Rango: {item['tokens_min']}-{item['tokens_max']} | n={item['n_samples']}")
+            print("\n" + "="*100)
+            print("BOTTOM 10 PREGUNTAS CON MENOR CONSUMO DE TOKENS")
+            print("="*100)
+            for i, item in enumerate(ranking[-10:], 1):
+                print(f"\n{i}. Pregunta #{item['pregunta_num']}: {item['tokens_mean']:.1f} tokens promedio")
+                print(f"   Texto: {item['texto']}")
+                print(f"   Rango: {item['tokens_min']}-{item['tokens_max']} | n={item['n_samples']}")
 
     def generar_estadisticas_globales(self, ranking):
         """Genera estadísticas globales"""
+        if not ranking:
+            print("\n❌ No hay datos para estadísticas globales.")
+            return
+
         tokens_means = [item["tokens_mean"] for item in ranking]
 
         print("\n" + "="*100)
         print("ESTADÍSTICAS GLOBALES (100 PREGUNTAS)")
         print("="*100)
+        print(f"Total preguntas analizadas: {len(ranking)}")
         print(f"Tokens promedio (todas): {np.mean(tokens_means):.1f}")
         print(f"Tokens mediana (todas): {np.median(tokens_means):.1f}")
         print(f"Tokens desv.est. (todas): {np.std(tokens_means):.1f}")
@@ -163,7 +175,8 @@ class AnalizadorPreguntasTokens:
 
         self.imprimir_ranking(ranking)
         self.generar_estadisticas_globales(ranking)
-        self.guardar_ranking(ranking)
+        if ranking:
+            self.guardar_ranking(ranking)
 
 
 if __name__ == "__main__":
